@@ -60,18 +60,18 @@ def main(args):
     # Store some git revision info in a text file in the log directory
     src_path,_ = os.path.split(os.path.realpath(__file__))
     #facenet.store_revision_info(src_path, output_dir, ' '.join(sys.argv))
-    dataset = face_image.get_dataset(args.name, args.input_dir)
+    dataset = face_image.get_dataset(args.name, args.input_dir, args.json_dir)
     print('dataset size', args.name, len(dataset))
-    
+
     print('Creating networks and loading parameters')
-    
+
     with tf.Graph().as_default():
         #gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=args.gpu_memory_fraction)
         #sess = tf.Session(config=tf.ConfigProto(gpu_options=gpu_options, log_device_placement=False))
         sess = tf.Session()
         with sess.as_default():
             pnet, rnet, onet = detect_face.create_mtcnn(sess, None)
-    
+
     minsize = 100 # minimum size of face
     threshold = [ 0.6, 0.7, 0.7 ]  # three steps's threshold
     factor = 0.709 # scale factor
@@ -95,8 +95,8 @@ def main(args):
       os.makedirs(args.output_dir)
 
     output_filename = os.path.join(args.output_dir, 'lst')
-    
-    
+
+
     with open(output_filename, "w") as text_file:
         nrof_images_total = 0
         nrof = np.zeros( (5,), dtype=np.int32)
@@ -222,19 +222,19 @@ def main(args):
                 cv2.imwrite(target_file, bgr)
                 oline = '%d\t%s\t%d\n' % (1,target_file, int(fimage.classname))
                 text_file.write(oline)
-                            
+
 
 def parse_arguments(argv):
     parser = argparse.ArgumentParser()
-    
+
     parser.add_argument('--input-dir', type=str, help='Directory with unaligned images.')
     parser.add_argument('--name', type=str, help='dataset name, can be facescrub, megaface, webface, celeb.')
     parser.add_argument('--output-dir', type=str, help='Directory with aligned face thumbnails.')
     #parser.add_argument('--image_size', type=str, help='Image size (height, width) in pixels.', default='112,112')
     #parser.add_argument('--margin', type=int,
     #    help='Margin for the crop around the bounding box (height, width) in pixels.', default=44)
+    parser.add_argument('--json-dir', type=str, help='where the json meta files are')
     return parser.parse_args(argv)
 
 if __name__ == '__main__':
     main(parse_arguments(sys.argv[1:]))
-

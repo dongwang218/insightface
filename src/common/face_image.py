@@ -88,7 +88,7 @@ def get_dataset_facescrub(input_dir):
     label += 1
   return ret
 
-def get_dataset_megaface(input_dir):
+def get_dataset_megaface(input_dir, json_dir = None):
   ret = []
   label = 0
   for prefixdir in os.listdir(input_dir):
@@ -103,7 +103,11 @@ def get_dataset_megaface(input_dir):
           fimage.id = os.path.join(prefixdir, subdir, img)
           fimage.classname = str(label)
           fimage.image_path = os.path.join(_subdir, img)
-          json_file = fimage.image_path+".json"
+          if json_dir is None:
+            json_file = fimage.image_path+".json"
+          else:
+            json_file = os.path.join(json_dir, os.path.join(subdir, img.replace('.'+img.split('.')[-1], '.json')))
+
           data = None
           fimage.bbox = None
           fimage.landmark = None
@@ -120,9 +124,17 @@ def get_dataset_megaface(input_dir):
               fimage.bbox[2] = bb['x']+bb['width']
               fimage.bbox[3] = bb['y']+bb['height']
               #print('bb')
+            if 'box' in data:
+              fimage.bbox = np.zeros( (4,), dtype=np.float32 )
+              bb = data['box']
+              fimage.bbox[0] = bb['left']
+              fimage.bbox[1] = bb['top']
+              fimage.bbox[2] = bb['right']
+              fimage.bbox[3] = bb['bottom']
+
             if 'landmarks' in data:
               landmarks = data['landmarks']
-              if '1' in landmarks and '0' in landmarks and '2' in landmarks:
+              if type(landmarks) == dict and '1' in landmarks and '0' in landmarks and '2' in landmarks:
                 fimage.landmark = np.zeros( (3,2), dtype=np.float32 )
                 fimage.landmark[0][0] = landmarks['1']['x']
                 fimage.landmark[0][1] = landmarks['1']['y']
@@ -161,7 +173,7 @@ def get_dataset_common(input_dir, min_images = 1):
       label+=1
   return ret
 
-def get_dataset(name, input_dir):
+def get_dataset(name, input_dir, meta_dir=None):
   if name=='webface' or name=='lfw' or name=='vgg':
     return get_dataset_common(input_dir)
   if name=='celeb':
@@ -169,7 +181,5 @@ def get_dataset(name, input_dir):
   if name=='facescrub':
     return get_dataset_facescrub(input_dir)
   if name=='megaface':
-    return get_dataset_megaface(input_dir)
+    return get_dataset_megaface(input_dir, meta_dir)
   return None
-
-
