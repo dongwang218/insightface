@@ -1,5 +1,12 @@
+Improve the performance of **LResNet100E-IR** network by data augmentation and training on both **MS1M** and **VGGFace2** dataset:
 
-# InsightFace :  Additive Angular Margin Loss for Deep Face Recognition
+| LFW(%) |  CFP-FP(%) | AgeDB-30(%) |
+| ------ |  --------- | ----------- |
+| 99.78+ |  96.95+    | 97.78+      |
+
+
+Original Readme
+## InsightFace :  Additive Angular Margin Loss for Deep Face Recognition
 
   Paper by Jiankang Deng, Jia Guo, and Stefanos Zafeiriou (Current method name ArcFace may be replaced to avoid conflicts with the company name. We will probably use the name InsightFace.)
   
